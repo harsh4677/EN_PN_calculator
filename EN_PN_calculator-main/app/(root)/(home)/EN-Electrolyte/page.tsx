@@ -1,5 +1,15 @@
 "use client";
-import { useState } from 'react';
+import CalculatedButton from '@/components/CalculatedButton';
+import AlbuminandTotalProtein from '@/constants/AlbuminAndTotalProtein';
+import ArterialBloodGas from '@/constants/ArterialBloodGas';
+import BloodGlucoseLevel from '@/constants/BloodGlucoseLevel';
+import Hematology from '@/constants/Hematology';
+import LipidProfile from '@/constants/LipidProfile';
+import LiverFunctionTest from '@/constants/LiverFunctionTest';
+import RenalFunction from '@/constants/RenalFunction ';
+import TraceElements from '@/constants/TraceElements';
+import {FormEvent, useState } from 'react';
+
 
 // Define the types for the electrolyte and test values
 interface ElectrolyteValues {
@@ -87,11 +97,8 @@ const CombinedForm: React.FC = () => {
     Cr: '',
     Mg: ''
   });
-
+  
   const [submitted, setSubmitted] = useState(false);
-  const [showTraceElements, setShowTraceElements] = useState(false);
-  const [showMultivitamins, setShowMultivitamins] = useState(false);
-
 
   // Handle input change for electrolytes
   const handleElectrolyteChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -126,20 +133,29 @@ const CombinedForm: React.FC = () => {
     });
   };
 
-  // Handle form submission
+  interface CalculatedButtonProps {
+    children: React.ReactNode;
+    className?: string;
+    onClick: (e: FormEvent<Element>) => void;
+  }
+ 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    
     console.log('Electrolyte values submitted:', electrolytes);
     console.log('Medical test values submitted:', testValues);
     calculateVolumes();
     setSubmitted(true);
-    // Add your submission logic here
-  };
+
+  }; 
+  
+
 
   return(
     <div className="flex justify-center items-center min-h-screen w-screen bg-gradient-to-b from-gray-800 to-gray-900">
       <form onSubmit={handleSubmit} className="bg-gray-700 p-8 rounded-lg shadow-2xl w-full max-w-7xl">
         <h1 className='text-white font-bold text-3xl'>EN</h1>
+        
         {/* Electrolyte Input Section */}
         <h2 className="text-2xl font-bold text-center text-white mb-6">Electrolyte Input</h2>
         <div className="flex justify-between gap-4">
@@ -160,375 +176,39 @@ const CombinedForm: React.FC = () => {
             </div>
           ))}
         </div>
-
         {/* Medical Test Input Section */}
         <h2 className="text-2xl font-bold text-center text-white mb-6 mt-8">Medical Test Input</h2>
 
-        {/* Blood Glucose Level */}
-        <h3 className="text-xl font-semibold text-white mb-4">Blood Glucose Level</h3>
-        <div className="flex flex-wrap justify-between gap-4 mb-4">
-          <div className="flex flex-col flex-grow">
-            <label className="text-lg text-white mb-1" htmlFor="FBS">
-              FBS (mg/dL):
-            </label>
-            <input
-              type="number"
-              name="FBS"
-              value={testValues.FBS}
-              onChange={handleTestChange}
-              required
-              className="border border-gray-300 p-2 rounded-lg w-full focus:outline-none focus:ring focus:ring-blue-400"
-              placeholder="Enter FBS"
-            />
-          </div>
-          <div className="flex flex-col flex-grow">
-            <label className="text-lg text-white mb-1" htmlFor="A1c">
-              A1c (HbA1c) (%):
-            </label>
-            <input
-              type="number"
-              name="A1c"
-              value={testValues.A1c}
-              onChange={handleTestChange}
-              required
-              className="border border-gray-300 p-2 rounded-lg w-full focus:outline-none focus:ring focus:ring-blue-400"
-              placeholder="Enter A1c"
-            />
-          </div>
-        </div>
+        {/* Blood Glucose Level */}        
+        <BloodGlucoseLevel/>
 
         {/* Liver Function Test (LFTs) */}
-        <h3 className="text-xl font-semibold text-white mb-4">Liver Function Test (LFTs)</h3>
-        <div className="flex flex-wrap justify-between gap-4 mb-4">
-          <div className="flex flex-col flex-grow">
-            <label className="text-lg text-white mb-1" htmlFor="AST">
-              AST (U/L):
-            </label>
-            <input
-              type="number"
-              name="AST"
-              value={testValues.AST}
-              onChange={handleTestChange}
-              required
-              className="border border-gray-300 p-2 rounded-lg w-full focus:outline-none focus:ring focus:ring-blue-400"
-              placeholder="Enter AST"
-            />
-          </div>
-          <div className="flex flex-col flex-grow">
-            <label className="text-lg text-white mb-1" htmlFor="Bilirubin">
-              Bilirubin (mg/dL):
-            </label>
-            <input
-              type="number"
-              name="Bilirubin"
-              value={testValues.Bilirubin}
-              onChange={handleTestChange}
-              required
-              className="border border-gray-300 p-2 rounded-lg w-full focus:outline-none focus:ring focus:ring-blue-400"
-              placeholder="Enter Bilirubin"
-            />
-          </div>
-          <div className="flex flex-col flex-grow">
-            <label className="text-lg text-white mb-1" htmlFor="ALP">
-              ALP (U/L):
-            </label>
-            <input
-              type="number"
-              name="ALP"
-              value={testValues.ALP}
-              onChange={handleTestChange}
-              required
-              className="border border-gray-300 p-2 rounded-lg w-full focus:outline-none focus:ring focus:ring-blue-400"
-              placeholder="Enter ALP"
-            />
-          </div>
-          <div className="flex flex-col flex-grow">
-            <label className="text-lg text-white mb-1" htmlFor="ALT">
-              ALT (U/L):
-            </label>
-            <input
-              type="number"
-              name="ALT"
-              value={testValues.ALT}
-              onChange={handleTestChange}
-              required
-              className="border border-gray-300 p-2 rounded-lg w-full focus:outline-none focus:ring focus:ring-blue-400"
-              placeholder="Enter ALT"
-            />
-          </div>
-        </div>
+        <LiverFunctionTest/>
+
 
         {/* Renal Function */}
-        <h3 className="text-xl font-semibold text-white mb-4">Renal Function</h3>
-        <div className="flex flex-wrap justify-between gap-4 mb-4">
-          <div className="flex flex-col flex-grow">
-            <label className="text-lg text-white mb-1" htmlFor="BUN">
-              BUN (mg/dL):
-            </label>
-            <input
-              type="number"
-              name="BUN"
-              value={testValues.BUN}
-              onChange={handleTestChange}
-              required
-              className="border border-gray-300 p-2 rounded-lg w-full focus:outline-none focus:ring focus:ring-blue-400"
-              placeholder="Enter BUN"
-            />
-          </div>
-        </div>
+        <RenalFunction/>
 
         {/* Albumin and Total Protein */}
-        <h3 className="text-xl font-semibold text-white mb-4">Albumin and Total Protein</h3>
-        <div className="flex flex-wrap justify-between gap-4 mb-4">
-          <div className="flex flex-col flex-grow">
-            <label className="text-lg text-white mb-1" htmlFor="Albumin">
-              Albumin (g/dL):
-            </label>
-            <input
-              type="number"
-              name="Albumin"
-              value={testValues.Albumin}
-              onChange={handleTestChange}
-              required
-              className="border border-gray-300 p-2 rounded-lg w-full focus:outline-none focus:ring focus:ring-blue-400"
-              placeholder="Enter Albumin"
-            />
-          </div>
-          <div className="flex flex-col flex-grow">
-            <label className="text-lg text-white mb-1" htmlFor="Protein">
-              Total Protein (g/dL):
-            </label>
-            <input
-              type="number"
-              name="Protein"
-              value={testValues.Protein}
-              onChange={handleTestChange}
-              required
-              className="border border-gray-300 p-2 rounded-lg w-full focus:outline-none focus:ring focus:ring-blue-400"
-              placeholder="Enter Total Protein"
-            />
-          </div>
-        </div>
+        <AlbuminandTotalProtein/>
 
         {/* Hematology */}
-        <h3 className="text-xl font-semibold text-white mb-4">Hematology</h3>
-        <div className="flex flex-wrap justify-between gap-4 mb-4">
-          <div className="flex flex-col flex-grow">
-            <label className="text-lg text-white mb-1" htmlFor="Hgb">
-              Hemoglobin (g/dL):
-            </label>
-            <input
-              type="number"
-              name="Hgb"
-              value={testValues.Hgb}
-              onChange={handleTestChange}
-              required
-              className="border border-gray-300 p-2 rounded-lg w-full focus:outline-none focus:ring focus:ring-blue-400"
-              placeholder="Enter Hemoglobin"
-            />
-          </div>
-          <div className="flex flex-col flex-grow">
-            <label className="text-lg text-white mb-1" htmlFor="Hct">
-              Hematocrit (%):
-            </label>
-            <input
-              type="number"
-              name="Hct"
-              value={testValues.Hct}
-              onChange={handleTestChange}
-              required
-              className="border border-gray-300 p-2 rounded-lg w-full focus:outline-none focus:ring focus:ring-blue-400"
-              placeholder="Enter Hematocrit"
-            />
-          </div>
-          <div className="flex flex-col flex-grow">
-            <label className="text-lg text-white mb-1" htmlFor="WBC">
-              WBC (K/uL):
-            </label>
-            <input
-              type="number"
-              name="WBC"
-              value={testValues.WBC}
-              onChange={handleTestChange}
-              required
-              className="border border-gray-300 p-2 rounded-lg w-full focus:outline-none focus:ring focus:ring-blue-400"
-              placeholder="Enter WBC"
-            />
-          </div>
-          <div className="flex flex-col flex-grow">
-            <label className="text-lg text-white mb-1" htmlFor="Platelets">
-              Platelets (K/uL):
-            </label>
-            <input
-              type="number"
-              name="Platelets"
-              value={testValues.Platelets}
-              onChange={handleTestChange}
-              required
-              className="border border-gray-300 p-2 rounded-lg w-full focus:outline-none focus:ring focus:ring-blue-400"
-              placeholder="Enter Platelets"
-            />
-          </div>
-        </div>
+        <Hematology/>
 
         {/* Lipid Profile */}
-        <h3 className="text-xl font-semibold text-white mb-4">Lipid Profile</h3>
-        <div className="flex flex-wrap justify-between gap-4 mb-4">
-          <div className="flex flex-col flex-grow">
-            <label className="text-lg text-white mb-1" htmlFor="Triglyceride">
-              Triglyceride (mg/dL):
-            </label>
-            <input
-              type="number"
-              name="Triglyceride"
-              value={testValues.Triglyceride}
-              onChange={handleTestChange}
-              required
-              className="border border-gray-300 p-2 rounded-lg w-full focus:outline-none focus:ring focus:ring-blue-400"
-              placeholder="Enter Triglyceride"
-            />
-          </div>
-          <div className="flex flex-col flex-grow">
-            <label className="text-lg text-white mb-1" htmlFor="Cholesterol">
-              Total Cholesterol (mg/dL):
-            </label>
-            <input
-              type="number"
-              name="Cholesterol"
-              value={testValues.Cholesterol}
-              onChange={handleTestChange}
-              required
-              className="border border-gray-300 p-2 rounded-lg w-full focus:outline-none focus:ring focus:ring-blue-400"
-              placeholder="Enter Total Cholesterol"
-            />
-          </div>
-          <div className="flex flex-col flex-grow">
-            <label className="text-lg text-white mb-1" htmlFor="LDL">
-              LDL (mg/dL):
-            </label>
-            <input
-              type="number"
-              name="LDL"
-              value={testValues.LDL}
-              onChange={handleTestChange}
-              required
-              className="border border-gray-300 p-2 rounded-lg w-full focus:outline-none focus:ring focus:ring-blue-400"
-              placeholder="Enter LDL"
-            />
-          </div>
-          <div className="flex flex-col flex-grow">
-            <label className="text-lg text-white mb-1" htmlFor="HDL">
-              HDL (mg/dL):
-            </label>
-            <input
-              type="number"
-              name="HDL"
-              value={testValues.HDL}
-              onChange={handleTestChange}
-              required
-              className="border border-gray-300 p-2 rounded-lg w-full focus:outline-none focus:ring focus:ring-blue-400"
-              placeholder="Enter HDL"
-            />
-          </div>
-        </div>
+        <LipidProfile/>
 
-        {/* Arterial Blood Gas (ABG) */}
-        <h3 className="text-xl font-semibold text-white mb-4">Arterial Blood Gas (ABG)</h3>
-        <div className="flex flex-wrap justify-between gap-4 mb-4">
-          <div className="flex flex-col flex-grow">
-            <label className="text-lg text-white mb-1" htmlFor="pH">
-              pH:
-            </label>
-            <input
-              type="number"
-              name="pH"
-              value={testValues.pH}
-              onChange={handleTestChange}
-              required
-              className="border border-gray-300 p-2 rounded-lg w-full focus:outline-none focus:ring focus:ring-blue-400"
-              placeholder="Enter pH"
-            />
-          </div>
-          <div className="flex flex-col flex-grow">
-            <label className="text-lg text-white mb-1" htmlFor="HCO3">
-              HCO3 (mEq/L):
-            </label>
-            <input
-              type="number"
-              name="HCO3"
-              value={testValues.HCO3}
-              onChange={handleTestChange}
-              required
-              className="border border-gray-300 p-2 rounded-lg w-full focus:outline-none focus:ring focus:ring-blue-400"
-              placeholder="Enter HCO3"
-            />
-          </div>
-        </div>
+        {/* Arterial Blood Gas (ABG)*/}
+        <ArterialBloodGas/>
 
         {/* Trace Elements */}
-        <h3 className="text-xl font-semibold text-white mb-4">Trace Elements</h3>
-        <div className="flex flex-wrap justify-between gap-4 mb-4">
-          <div className="flex flex-col flex-grow">
-            <label className="text-lg text-white mb-1" htmlFor="Zn">
-              Zinc (mg/dL):
-            </label>
-            <input
-              type="number"
-              name="Zn"
-              value={testValues.Zn}
-              onChange={handleTestChange}
-              required
-              className="border border-gray-300 p-2 rounded-lg w-full focus:outline-none focus:ring focus:ring-blue-400"
-              placeholder="Enter Zinc"
-            />
-          </div>
-          <div className="flex flex-col flex-grow">
-            <label className="text-lg text-white mb-1" htmlFor="Cu">
-              Copper (mg/dL):
-            </label>
-            <input
-              type="number"
-              name="Cu"
-              value={testValues.Cu}
-              onChange={handleTestChange}
-              required
-              className="border border-gray-300 p-2 rounded-lg w-full focus:outline-none focus:ring focus:ring-blue-400"
-              placeholder="Enter Copper"
-            />
-          </div>
-          <div className="flex flex-col flex-grow">
-            <label className="text-lg text-white mb-1" htmlFor="Cr">
-              Chromium (mg/dL):
-            </label>
-            <input
-              type="number"
-              name="Cr"
-              value={testValues.Cr}
-              onChange={handleTestChange}
-              required
-              className="border border-gray-300 p-2 rounded-lg w-full focus:outline-none focus:ring focus:ring-blue-400"
-              placeholder="Enter Chromium"
-            />
-          </div>
-          <div className="flex flex-col flex-grow">
-            <label className="text-lg text-white mb-1" htmlFor="Mg">
-              Magnesium (mg/dL):
-            </label>
-            <input
-              type="number"
-              name="Mg"
-              value={testValues.Mg}
-              onChange={handleTestChange}
-              required
-              className="border border-gray-300 p-2 rounded-lg w-full focus:outline-none focus:ring focus:ring-blue-400"
-              placeholder="Enter Magnesium"
-            />
-          </div>
-        </div>
+        <TraceElements/>
+
+
         <div className="mt-8 text-white flex justify-between cursor-pointer">
           {/* Calculated Volumes Section */}
-          <div className="w-1/4 bg-gray-800 p-6 rounded-lg shadow-lg">
-            <h2 className="text-2xl font-bold mb-4 border-b-2 border-blue-500 pb-2">Calculated Volumes (mL):</h2>
+          <div className="w-full text-center bg-gray-800 p-6 rounded-lg shadow-lg">
+            <h2 className="text-2xl font-bold mb-4 border-b-2 border-blue-500 pb-2">Electrolytes Volumes (mL):</h2>
             <ul className="space-y-2">
               <li className="hover:text-blue-400 transition-colors text-lg font-semibold">Sodium (Na): {volumes.Na.toFixed(2)} mL</li>
               <li className="hover:text-blue-400 transition-colors text-lg font-semibold">Potassium (K): {volumes.K.toFixed(2)} mL</li>
@@ -537,69 +217,25 @@ const CombinedForm: React.FC = () => {
               <li className="hover:text-blue-400 transition-colors text-lg font-semibold">Magnesium (Mg): {volumes.Mg.toFixed(2)} mL</li>
               <li className="hover:text-blue-400 transition-colors text-lg font-semibold">Phosphate (PO4): {volumes.PO4.toFixed(2)} mL</li>
             </ul>
-            
-            <h2 className="w-1/4 text-2xl font-bold mt-6 mb-4 border-b-2 border-blue-500 pb-2">Bicarbonates</h2>
+            <h2 className="w-full text-center text-2xl font-bold mt-6 mb-4 border-b-2 border-blue-500 pb-2">Bicarbonates</h2>
             <ul className="space-y-2">
               <li className="hover:text-blue-400 transition-colors text-lg font-semibold">Bicarbonate (HCO3): {volumes.HCO3.toFixed(2)} mL</li>
             </ul>
           </div>
-{/* 
-          <div className="flex flex-col space-y-6"> */}
-             {/* Trace Elements Section */}
-          {showTraceElements && (
-            <div className="w-1/4 bg-gray-800 p-6 rounded-lg shadow-lg">
-              <h2 className="text-2xl font-bold mb-4 border-b-2 border-green-500 pb-2">Trace Elements</h2>
-              <ul className="space-y-2">
-                <li className="hover:text-green-400 transition-colors text-lg font-semibold">Zinc: 5 mg</li>
-                <li className="hover:text-green-400 transition-colors text-lg font-semibold">Copper: 1 mcg</li>
-                <li className="hover:text-green-400 transition-colors text-lg font-semibold">Manganese (Mn): 0.5 mcg</li>
-                <li className="hover:text-green-400 transition-colors text-lg font-semibold">Chromium: 10 mcg</li>
-                <li className="hover:text-green-400 transition-colors text-lg font-semibold">Selenium: 60 mcg</li>
-              </ul>
-            </div>
-          )}
-
-          {/* Multivitamins Section */}
-          {showMultivitamins && (
-            <div className="w-1/4 bg-gray-800 p-6 rounded-lg shadow-lg">
-              <h2 className="text-2xl font-bold mb-4 border-b-2 border-purple-500 pb-2">Multivitamins</h2>
-              <h3 className="text-xl font-semibold mb-2">Vitamins</h3>
-              <ul className="space-y-2">
-                <li className="hover:text-purple-400 transition-colors text-lg font-semibold">A: 4000 IU</li>
-                <li className="hover:text-purple-400 transition-colors text-lg font-semibold">D3: 400 IU</li>
-                <li className="hover:text-purple-400 transition-colors text-lg font-semibold">E: 10 IU</li>
-                <li className="hover:text-purple-400 transition-colors text-lg font-semibold">K1: 80 mcg</li>
-                <li className="hover:text-purple-400 transition-colors text-lg font-semibold">B1: 1.5 mg</li>
-                <li className="hover:text-purple-400 transition-colors text-lg font-semibold">B2: 1.7 mg</li>
-                <li className="hover:text-purple-400 transition-colors text-lg font-semibold">B6: 2 mg</li>
-                <li className="hover:text-purple-400 transition-colors text-lg font-semibold">Folic Acid: 0.4 mcg</li>
-                <li className="hover:text-purple-400 transition-colors text-lg font-semibold">Pantothenic Acid: 10 mg</li>
-                <li className="hover:text-purple-400 transition-colors text-lg font-semibold">B12: 6 mcg</li>
-                <li className="hover:text-purple-400 transition-colors text-lg font-semibold">Biotin: 300 mcg</li>
-              </ul>
-            </div>
-          )}
         </div>
-        {/* </div> */}
-        <div className="mt-8 flex justify-center gap-4">
+
+        {/* Button to Calculate Electrolyte Volumes */}
+        <div>
           <button
-            className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-6 rounded-lg transition-colors shadow-lg"
-            onClick={handleSubmit}
+            type="button"
+            onClick={calculateVolumes}
+            className="mt-8 w-full p-4 text-lg font-semibold bg-blue-600 hover:bg-blue-700 transition-colors rounded-lg shadow-md"
           >
-            Calculated Volume
+            Calculate Electrolyte Volumes
           </button>
-          <button
-            onClick={() => setShowTraceElements(!showTraceElements)}
-            className="bg-green-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-green-600 transition-colors"
-          >
-           Trace Elements
-          </button>
-          <button
-            onClick={() => setShowMultivitamins(!showMultivitamins)}
-            className="bg-purple-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-purple-600 transition-colors"
-          >
-            Multivitamins
-          </button>
+          <div>
+           <CalculatedButton/>
+          </div>
         </div>
       </form>
     </div>
@@ -607,3 +243,4 @@ const CombinedForm: React.FC = () => {
 };
 
 export default CombinedForm;
+

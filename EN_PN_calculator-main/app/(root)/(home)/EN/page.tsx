@@ -1,65 +1,45 @@
 "use client";
 
-const calculateNutrients = (tdee: number | null, weight: string, selectedCondition: string) => {
-  if (!tdee || isNaN(parseFloat(weight))) return null;
-
-  let carbohydrate = 0;
-  let protein = 0;
-  let fats = 0;
-  let fatVolume = 0;
-
-  switch (selectedCondition) {
-    case '1.2': // Burns
-      carbohydrate = (tdee * 0.55) / 4;
-      protein = (tdee * 0.25) / 4;
-      fats = (tdee * 0.20) / 9;
-      break;
-    case '1.4': // Severe Burn
-      carbohydrate = (tdee * 0.60) / 4;
-      protein = (tdee * 0.20) / 4;
-      fats = (tdee * 0.20) / 9;
-      break;
-    case '1.6': // Liver Issue
-      carbohydrate = (tdee * 0.55) / 4;
-      protein = (tdee * 0.15) / 4;
-      fats = (tdee * 0.30) / 9;
-      break;
-    case '1.8': // Renal Failure
-      carbohydrate = (tdee * 0.50) / 4;
-      protein = (tdee * 0.15) / 4;
-      fats = (tdee * 0.35) / 9;
-      break;
-    default: // Default or unknown condition
-      carbohydrate = (tdee * 0.50) / 4;
-      protein = (tdee * 0.20) / 4;
-      fats = (tdee * 0.30) / 9;
-      break;
-  }
-
-  fatVolume = fats * 1.1;
-  const fluidReq = parseFloat(weight) * 30;
-
-  return { carbohydrate, protein, fats, fatVolume, fluidReq };
-};
-
 import React, { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
 import NextStepButton from "@/components/NextStepButton";
-
 
 const StressANDTDEEpage: React.FC = () => {
   const [stressFactor, setStressFactor] = useState<string>('');
-  const [customStressFactor, setCustomStressFactor] = useState<string>('');
   const [selectedCondition, setSelectedCondition] = useState<string>(''); 
   const [bmr, setBmr] = useState<number | null>(null);
-
   const [patientName, setPatientName] = useState<string>("");
   const [age, setAge] = useState<string>("");
   const [height, setHeight] = useState<string>("");
   const [weight, setWeight] = useState<string>("");
   const [gender, setGender] = useState<string>("");
+  
+  // New state variables for nutrient values
+  const [nutrientValues, setNutrientValues] = useState<{
+    carbohydrate: number | null,
+    protein: number | null,
+    fats: number | null,
+    fatVolume: number | null,
+    fluidReq: number | null
+  }>({
+    carbohydrate: null,
+    protein: null,
+    fats: null,
+    fatVolume: null,
+    fluidReq: null
+  });
 
-  const router = useRouter();
+  const options = [
+    { label: "Normal/No stress (1.0)", range: [1.0, 1.0] },
+    { label: "Minor Surgery (1.3 - 1.5)", range: [1.3, 1.5] },
+    { label: "Moderate Surgery (1.2 - 1.4)", range: [1.2, 1.4] },
+    { label: "Major Surgery (1.3 - 1.5)", range: [1.3, 1.5] },
+    { label: "Burns (1.5 - 1.8)", range: [1.5, 1.8] },
+    { label: "Severe Burn (1.8 - 2.0)", range: [1.8, 2.0] },
+    { label: "Liver Issue (1.2 - 2.0)", range: [1.6, 1.6] },
+    { label: "Renal Issues (1.2 - 2.0)", range: [1.2, 1.5] },
+    { label: "Lung Issues (1.2 - 2.0)", range: [1.2, 1.5] },
+  ];
+  
 
   const calculateBMR = () => {
     const weightNum = parseFloat(weight);
@@ -77,15 +57,21 @@ const StressANDTDEEpage: React.FC = () => {
   };
 
   const calculateTDEE = () => {
-    const factor = customStressFactor || stressFactor;
-    if (!bmr || !factor) {
-      return null;
-    }
-    const parsedFactor = parseFloat(factor);
-    if (isNaN(parsedFactor)) {
-      return null;
-    }
-    return bmr * parsedFactor;
+    const factor = parseFloat(stressFactor);
+    if (!bmr || isNaN(factor)) return null;
+    return bmr * factor;
+  };
+
+  const calculateNutrients = (tdee: number | null) => {
+    if (!tdee) return null;
+
+    const carbohydrate = (tdee * 0.50) / 4;
+    const protein = (tdee * 0.2) / 4;
+    const fats = (tdee * 0.3) / 9;
+    const fatVolume = fats * 1.1;
+    const fluidReq = parseFloat(weight) * 30;
+
+    return { carbohydrate, protein, fats, fatVolume, fluidReq };
   };
 
   const handleSubmit = () => {
@@ -118,22 +104,28 @@ const StressANDTDEEpage: React.FC = () => {
     }
   }, []);
 
-  const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const selectedValue = e.target.value.split(' ')[0]; // Extract the numerical part
-    setStressFactor(selectedValue);
-    setSelectedCondition(selectedValue);
-    setCustomStressFactor('');
-  };
-
-  const handleCustomChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setCustomStressFactor(e.target.value);
-    setStressFactor(''); // Clear dropdown when custom value is used
-  };
-
   const tdee = calculateTDEE();
-  const nutrientValues = calculateNutrients(tdee, weight, selectedCondition);
 
+  const validateStressFactor = () => {
+    const selected = options.find(option => option.label === selectedCondition);
+    if (selected && (parseFloat(stressFactor) < selected.range[0] || parseFloat(stressFactor) > selected.range[1])) {
+      alert(`Please enter a valid stress factor between ${selected.range[0]} and ${selected.range[1]}.`);
+    }
+  };
 
+  const handleCalculate = () => {
+    if (!tdee) {
+      alert("Please calculate TDEE first.");
+      return;
+    }
+    
+    const values = calculateNutrients(tdee);
+    if (values) {
+      setNutrientValues(values); // Set nutrient values in state
+      const { carbohydrate, protein, fats, fatVolume, fluidReq } = values;
+      // alert(`Carbohydrates: ${carbohydrate.toFixed(2)}g, Proteins: ${protein.toFixed(2)}g, Fats: ${fats.toFixed(2)}g, Fat Volume: ${fatVolume.toFixed(2)}ml, Fluid Requirement: ${fluidReq.toFixed(2)}ml`);
+    }
+  };
 
   return (
     <div className="flex flex-col min-h-screen w-screen bg-gradient-to-b from-gray-800 to-gray-900">
@@ -199,7 +191,7 @@ const StressANDTDEEpage: React.FC = () => {
           </div>
           <button
             onClick={handleSubmit}
-            className="mt-4 bg-blue-600 text-white p-3 rounded-lg w-64 transition duration-200 hover:bg-blue-700 focus:outline-none focus:ring focus:ring-blue-300"
+            className="bg-blue-600 text-white p-3 rounded-lg font-semibold "
           >
             Submit
           </button>
@@ -211,45 +203,70 @@ const StressANDTDEEpage: React.FC = () => {
           )}
 
           <div className="flex flex-col items-center gap-4 mt-4">
-            <label htmlFor="condition" className="font-semibold text-lg text-white">Select Stress Factor:</label>
+            <label htmlFor="condition" className="font-semibold text-lg text-white">Select Stress Condition:</label>
             <select
-              id="condition"
-              value={stressFactor}
-              onChange={handleChange}
+              value={selectedCondition}
+              onChange={(e) => {
+                setSelectedCondition(e.target.value);
+                const selected = options.find(option => option.label === e.target.value);
+                if (selected) {
+                  setStressFactor(selected.range[0].toString());
+                }
+              }}
               className="border border-gray-300 p-3 rounded-lg w-64 focus:outline-none focus:ring focus:ring-blue-300"
             >
               <option value="">Select Condition</option>
-              <option value="1.2">Burns</option>
-              <option value="1.4">Severe Burn</option>
-              <option value="1.6">Liver Issue</option>
-              <option value="1.8">Renal Failure</option>
-              <option value='1.0'>Normal/No stress (1.0)</option>
-              <option value='1.1'>Minor Surgery (1.1)</option>
-              <option value='1.2'>Moderate Surgery (1.2)</option>
-              <option value='1.3'>Major Surgery (1.3)</option>
+              {options.map(option => (
+                <option key={option.label} value={option.label}>{option.label}</option>
+              ))}
             </select>
-
-            <label className="font-semibold text-lg text-white">Custom Stress Factor:</label>
+          </div>
+          <div className="flex flex-col items-center gap-4">
+            <label className="font-semibold text-lg text-white">Stress Factor:</label>
             <input
               type="number"
-              value={customStressFactor}
-              onChange={handleCustomChange}
+              value={stressFactor}
+              onChange={(e) => setStressFactor(e.target.value)}
               className="border border-gray-300 p-3 rounded-lg w-64 focus:outline-none focus:ring focus:ring-blue-300"
-              placeholder="Enter Custom Factor"
+              placeholder="Enter Stress Factor"
             />
           </div>
 
-          {nutrientValues && (
-            <div className="mt-4 text-center text-white">
-              <p className="text-lg">Carbohydrates: {nutrientValues.carbohydrate.toFixed(2)} g</p>
-              <p className="text-lg">Proteins: {nutrientValues.protein.toFixed(2)} g</p>
-              <p className="text-lg">Fats: {nutrientValues.fats.toFixed(2)} g</p>
-              <p className="text-lg">Fat Volume: {nutrientValues.fatVolume.toFixed(2)} ml</p>
-              <p className="text-lg">Fluid Requirement: {nutrientValues.fluidReq.toFixed(2)} ml</p>
+          <div className="text-white flex flex-col" style={{ marginTop: "10px" }}>
+            <button onClick={handleCalculate} className="bg-green-600 text-white p-3 rounded-lg font-semibold">
+              Calculate Nutrients
+            </button>
+          </div>
+
+          {/* Displaying the nutrient values */}
+          {nutrientValues.carbohydrate !== null && (
+            <div className="mt-4 text-center text-white bg-gray-800 p-6 rounded-lg shadow-lg">
+              <p className="text-2xl font-bold text-purple-400 mb-4">Nutrient Values</p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="bg-gray-700 p-4 rounded-lg transition-transform transform hover:scale-105 shadow-md">
+                  <p className="text-lg font-semibold">Carbohydrates:</p>
+                  <p className="text-xl font-bold">{nutrientValues.carbohydrate.toFixed(2)}g</p>
+                </div>
+                <div className="bg-gray-700 p-4 rounded-lg transition-transform transform hover:scale-105 shadow-md">
+                  <p className="text-lg font-semibold">Proteins:</p>
+                  <p className="text-xl font-bold">{nutrientValues.protein?.toFixed(2)}g</p>
+                </div>
+                <div className="bg-gray-700 p-4 rounded-lg transition-transform transform hover:scale-105 shadow-md">
+                  <p className="text-lg font-semibold">Fats:</p>
+                  <p className="text-xl font-bold">{nutrientValues.fats?.toFixed(2)}g</p>
+                </div>
+                <div className="bg-gray-700 p-4 rounded-lg transition-transform transform hover:scale-105 shadow-md">
+                  <p className="text-lg font-semibold">Fat Volume:</p>
+                  <p className="text-xl font-bold">{nutrientValues.fatVolume?.toFixed(2)}ml</p>
+                </div>
+                <div className="bg-gray-700 p-4 rounded-lg transition-transform transform hover:scale-105 shadow-md">
+                  <p className="text-lg font-semibold">Fluid Requirement:</p>
+                  <p className="text-xl font-bold">{nutrientValues.fluidReq?.toFixed(2)}ml</p>
+                </div>
+              </div>
             </div>
           )}
-
-          <NextStepButton/>
+          <NextStepButton />
         </div>
       </main>
     </div>
@@ -257,4 +274,3 @@ const StressANDTDEEpage: React.FC = () => {
 };
 
 export default StressANDTDEEpage;
-
